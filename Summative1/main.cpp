@@ -31,7 +31,7 @@ const float frameDuration = 0.1f;
 GLuint Program_Texture;
 GLuint Texture_Model;
 
-Mesh_model* model;
+Mesh_model* statueModel;
 
 // Load the Image data
 int ImageWidth;
@@ -110,7 +110,7 @@ void InitialSetup() {
         exit(1);
     }
 
-    model = new Mesh_model("Resources/Models/AncientEmpire/SM_Prop_Statue_01.obj");
+    statueModel = new Mesh_model("Resources/Models/AncientEmpire/SM_Prop_Statue_01.obj");
 
     // ----------------------------------------- SETUP Image Textures ---------------------------------------------------------------- //
     // Image 0
@@ -146,7 +146,7 @@ void Render() {
     glm::mat4 ModelMat = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
     glm::mat4 MVP = ProjectionMat * ViewMat * ModelMat;
 
-    model->Render(Program_Texture, MVP, Texture_Model);
+    statueModel->Render(Program_Texture, MVP, Texture_Model);
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
@@ -156,7 +156,7 @@ void Render() {
 }
 
 void Cleanup() {
-    delete model;
+    delete statueModel;
 
     for (GLuint tex : textures) {
         glDeleteTextures(1, &tex);
