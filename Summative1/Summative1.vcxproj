@@ -144,6 +144,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCamera.h" />
+    <ClInclude Include="Input.h" />
     <ClInclude Include="MeshModel.h" />
     <ClInclude Include="ShaderLoader.h" />
     <ClInclude Include="VertexStandard.h" />

@@ -38,6 +38,9 @@
     <ClInclude Include="MeshModel.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Input.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt">

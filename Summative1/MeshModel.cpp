@@ -103,3 +103,70 @@ void Mesh_model::Render(GLuint Program, const glm::mat4& MVP, GLuint textureID) 
     // Reset OpenGL state.
     glUseProgram(0);
 }
+
+void Mesh_model::InitInstances(const std::vector<glm::mat4>& instances) {
+    glBindVertexArray(VAO);
+    glGenBuffers(1, &instanceVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, instances.size() * sizeof(glm::mat4), &instances[0], GL_STATIC_DRAW);
+
+    // Set attribute pointers for matrix (4 vec4)
+    for (int i = 0; i < 4; i++) {
+        glEnableVertexAttribArray(3 + i); // Start from location 3
+        glVertexAttribPointer(3 + i, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4) * i));
+        glVertexAttribDivisor(3 + i, 1);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
+
+void Mesh_model::RenderInstanced(GLuint Program, const glm::mat4& ViewProjection, GLuint textureID, int instanceCount) {
+    glUseProgram(Program);
+
+    glm::mat4 model = glm::mat4(1.0f); // Start with the identity matrix
+    model = glm::translate(model, statuePosition + glm::vec3(0.0f, 10.0f, 0.0f)); // Move the quad 10 units above the statue
+    model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+
+    // Set the view projection matrix uniform
+    GLint vpLoc = glGetUniformLocation(Program, "viewProjectionMatrix");
+    glUniformMatrix4fv(vpLoc, 1, GL_FALSE, glm::value_ptr(ViewProjection));
+
+    // Bind texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glUniform1i(glGetUniformLocation(Program, "Texture0"), 0);
+
+    // Draw
+    glBindVertexArray(VAO);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, DrawCount, instanceCount);
+    glBindVertexArray(0);
+
+    glUseProgram(0);
+}
+
+// GenerateInstance function for PalmTreeModel x 1000
+void  Mesh_model::GenerateInstanceTransforms(std::vector<glm::mat4>& transforms, int numInstances) {
+    transforms.resize(numInstances);
+    glm::vec3 baseScale(0.005f);
+    for (int i = 0; i < numInstances; i++) {
+        glm::vec3 position;
+        bool isSafe = false;
+        while (!isSafe) {
+            position = glm::linearRand(glm::vec3(-50, 0, -50), glm::vec3(50, 0, 50));
+            float distance = glm::distance(glm::vec2(position.x, position.z), glm::vec2(statuePosition.x, statuePosition.z));
+            if (distance > safeRadius) {
+                isSafe = true;
+            }
+        }
+
+        float angle = glm::linearRand(0.0f, 360.0f);
+        float scaleMultiplier = glm::linearRand(0.5f, 1.5f);
+        glm::vec3 scale = baseScale * scaleMultiplier;
+
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), position) *
+            glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0, 1, 0)) *
+            glm::scale(glm::mat4(1.0f), scale);
+        transforms[i] = model;
+    }
+}
